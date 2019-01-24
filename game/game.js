@@ -138,27 +138,46 @@
 		}
 	}
 
-	canvas.addEventListener("mousemove", function(event) {
-		pointer_x = event.layerX;
-		pointer_y = event.layerY;
+	canvas.addEventListener("mousemove", handle_mousemove);
+	canvas.addEventListener("touchmove", handle_mousemove);
+	canvas.addEventListener("mousedown", handle_mousedown);
+	canvas.addEventListener("touchstart", handle_mousedown);
+	canvas.addEventListener("mouseup", handle_mouseup);
+	canvas.addEventListener("touchend", handle_mouseup);
+
+	function handle_mousemove(event) {
+		event.preventDefault();
+
+		if (event.touches && event.touches[0]) event = event.touches[0];
+
+		const dx = event.pageX - pointer_x;
+		const dy = event.pageY - pointer_y;
+
+		pointer_x = event.pageX;
+		pointer_y = event.pageY;
 
 		if (pointer_down && pointer_in_bound) {
-			sticker_x += event.movementX;
-			sticker_y += event.movementY;
+			sticker_x += dx;
+			sticker_y += dy;
 		}
-	});
+	}
 
-	canvas.addEventListener("mousedown", function(event) {
+	function handle_mousedown(event) {
+		event.preventDefault();
+
+		if (event.touches && event.touches[0]) event = event.touches[0];
+
 		pointer_down = true;
 
-		const x = event.layerX + 50, y = event.layerY + 20;
+		const x = event.pageX + 50, y = event.pageY + 20;
 
 		pointer_in_bound = x > sticker_x
 				&& y > sticker_y
 				&& x < sticker_x + 95
 				&& y < sticker_y + 50;
-	});
-	canvas.addEventListener("mouseup", function(event) {
+	}
+
+	function handle_mouseup(event) {
 		pointer_down = false;
 
 		if (overlay_state != null) {
@@ -174,5 +193,5 @@
 			sticker_alpha = 0.999;
 			overlay_switch(RESULT, 1);
 		}
-	});
+	}
 })();
